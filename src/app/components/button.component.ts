@@ -26,21 +26,24 @@ import { Component, input, output } from '@angular/core';
     >
       <div class="button-container">
         <div>{{ icon() }}</div>
+        @if(text()){
         <div class="text-container">
           <div>{{ text() }}</div>
-          <div>{{ text1() }}</div>
-        </div>
+          @if (text1()) {
+          <div>{{ text1() }}</div>}
+        </div>}
       </div>
     </button>
   `,
   styles: `
 
-    button {
-    min-width: max-content;
-    max-width: 15ch;
-    min-height: max-content;
-    padding: 0.25rem 0.25rem;
-    }
+      button {
+      min-width: max-content;
+      max-width: 15ch;
+      min-height: max-content;
+      max-height: 50px;
+      padding: 4px 12px;
+      }
 
     .button-container {
       display: flex;
@@ -50,31 +53,31 @@ import { Component, input, output } from '@angular/core';
       gap: 1rem;
     }
 
-      .text-container {
+     .text-container {
       display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0.15rem;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.15rem;
     }
 
-    button:hover {
-      filter: brightness(1.2); /* Schiarisce del 20% */
-      transition: filter 0.3s ease, transform 0.3s ease; /* Transizione per un effetto più fluido */
-      transform: translateY(var(--hover-translate-y)) translateX(var(--hover-translate-x));
-      
-    }
+      button:hover {
+        filter: brightness(1.2); /* Schiarisce del 20% */
+        transition: filter 0.3s ease, transform 0.3s ease; /* Transizione per un effetto più fluido */
+        transform: translateY(var(--hover-translate-y)) translateX(var(--hover-translate-x));
+
+      }
     
-    button:active {
-      filter: brightness(1); /* Scurisce del 10% quando premuto */
-    } 
+      button:active {
+        filter: brightness(1); /* Scurisce del 10% quando premuto */
+      } 
 
     `,
 })
 export class ButtonComponent {
   type = input<string>('button');
   disabled = input<boolean>(false);
-  text = input.required<string, string>({
+  text = input<string, string>('',{
     transform: (value: string) => value.toUpperCase(),
   });
   text1 = input<string, string>('', {
@@ -87,12 +90,12 @@ export class ButtonComponent {
   bgColor = input<string>('rgb(131, 131, 131)');
   color = input<string>('rgb(255, 255, 255)');
   border = input<string>('1px solid rgb(0, 0, 0)');
-  borderRadius = input<string>('5');
+  borderRadius = input<number>(5);
   cssClass = input<string>('');
   clicked = output<MouseEvent>();
   translatey = input<string>('-2px');
   translatex = input<string>('0');
-  fontSize = input<string>('1.25');
+  fontSize = input<number>(1.25);
   fontWeight = input<string>('500');
   boxShadow = input<string>('0px 2px 4px rgba(0, 0, 0, 0.5)');
   fontFamily = input<string>('Arial, sans-serif');
