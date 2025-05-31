@@ -40,7 +40,7 @@ import { Component, input, output } from '@angular/core';
       button {
       min-width: max-content;
       max-width: 15ch;
-      min-height: max-content;
+      min-height: 37px;
       max-height: 50px;
       padding: 4px 12px;
       }
