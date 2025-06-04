@@ -32,14 +32,19 @@ import { ButtonComponent } from './button.component';
             disabled() ? 'rgb(255, 255, 255)' : bgColor()
           "
           [style.color]="disabled() ? 'rgb(0, 0, 0)' : color()"
-          [style.border]="disabled() ? 'none' : message() ? '1px solid rgb(255, 0, 0)' :border()"
+          [style.border]="
+            disabled()
+              ? 'none'
+              : message()
+              ? '1px solid rgb(255, 0, 0)'
+              : border()
+          "
           [style.borderRadius.px]="borderRadius()"
           (focus)="focus.emit($event)"
           (blur)="blur.emit($event)"
           (input)="onInputChange($event)"
-          
         />
-        
+
         @if(button()) {
         <div class="button-icon-close">
           <app-button
@@ -50,16 +55,16 @@ import { ButtonComponent } from './button.component';
             [translatey]="'0'"
             [boxShadow]="'none'"
             (clicked)="clicked.emit(input.value)"
-          /> @if(inputChanging()){
+          />
+          @if(inputChanging()){
+          <span class="custom-input-icon" (click)="clearInput()">❎</span>
+          }
+        </div>
+        }@else { @if(inputChanging()){
         <span class="custom-input-icon" (click)="clearInput()">❎</span>
-        }
-        </div>}@else {
-           @if(inputChanging()){
-        <span class="custom-input-icon" (click)="clearInput()">❎</span>
-        }
-        }
+        } }
       </div>
-          <span class="message">{{message()}}</span>
+      <span class="message">{{ message() }}</span>
     </div>
   `,
   styles: `
@@ -109,7 +114,7 @@ import { ButtonComponent } from './button.component';
   `,
 })
 export class InputComponent {
-  clicked = output<string>();
+  clicked = output<any>();
   button = input<boolean>(true);
   message = input<string>('');
   inputId = input<string>('input-id');
@@ -123,7 +128,7 @@ export class InputComponent {
   color = input<string>('rgb(0, 0, 0)');
   bgColor = input<string>('rgba(240, 240, 240, 0.9)');
   border = input<string>('1px solid rgb(0, 0, 0)');
-  borderRadius = input<number>(5);
+  borderRadius = input<number>(8);
   fontSize = input<number>(1);
   fontWeight = input<string>('500');
   boxShadow = input<string>('none');
@@ -137,11 +142,17 @@ export class InputComponent {
   inputValue = output<string>();
   focus = output<Event>();
   blur = output<Event>();
-  
+
   onInputChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    this.inputChanging.set(target.value);
-    this.inputValue.emit(target.value); 
+    let value = '';
+    if (this.type() === 'number') {
+      value = target.value.toString().replace(',', '.');
+    } else {
+      value = target.value;
+    }
+    this.inputChanging.set(value);
+    this.inputValue.emit(value);
   }
 
   clearInput() {

@@ -90,7 +90,7 @@ export class ButtonComponent {
   bgColor = input<string>('rgb(131, 131, 131)');
   color = input<string>('rgb(255, 255, 255)');
   border = input<string>('1px solid rgb(0, 0, 0)');
-  borderRadius = input<number>(5);
+  borderRadius = input<number>(8);
   cssClass = input<string>('');
   clicked = output<MouseEvent>();
   translatey = input<string>('-2px');
