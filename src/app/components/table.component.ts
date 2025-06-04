@@ -51,7 +51,7 @@ import { Component, input, output } from '@angular/core';
           </tr>
         </thead>
         <tbody>
-          @for (obj of showData; track rowIndex; let rowIndex = $index) {
+          @for (obj of showData; track $index) {
           <tr>
             @for (cellData of getRowCells(obj); track $index) {
             <td
@@ -75,7 +75,7 @@ import { Component, input, output } from '@angular/core';
                 @for (icon of cellData.icons; track $index) {
                   <button 
                     class="icon-button"
-                    (click)="onIconClick(icon, obj, rowIndex)"
+                    (click)="onIconClick(icon, obj)"
                     [title]="icon.tooltip || ''"
                   >
                     {{ icon.icon }}
@@ -85,13 +85,6 @@ import { Component, input, output } from '@angular/core';
             </td>
             }
           </tr>
-          @if (hasExpandedIcon(rowIndex)) {
-            <tr class="expanded-row">
-              <td [attr.colspan]="columns.length" class="expanded-cell">
-                Icona cliccata: {{ getClickedIconName(rowIndex) }}
-              </td>
-            </tr>
-          }
           }
         </tbody>
       </table>
@@ -120,19 +113,6 @@ import { Component, input, output } from '@angular/core';
     
     .icon-button:hover {
       background-color: rgba(0, 0, 0, 0.1);
-    }
-    
-    .expanded-row {
-      background-color: #f0f8ff;
-    }
-    
-    .expanded-cell {
-      padding: 12px;
-      font-style: italic;
-      color: #666;
-      text-align: center;
-      background-color: #f9f9f9;
-      border-top: 2px solid #e0e0e0;
     }
     `,
 })
@@ -201,9 +181,6 @@ export class TableComponent {
   // Output for icon clicks
   iconClick = output<{icon: IconConfig, rowData: any}>();
 
-  // State for tracking clicked icons
-  private clickedIcons = new Map<number, string>();
-
   get displayedData() {
     return this.data().map((row) => {
       const filteredRow: Partial<TableData> = {};
@@ -262,27 +239,8 @@ export class TableComponent {
     return cells;
   }
 
-  onIconClick(icon: IconConfig, rowData: any, rowIndex: number) {
-    const key = `${rowIndex}-${icon.id}`;
-    if (this.clickedIcons.has(rowIndex) && this.clickedIcons.get(rowIndex) === icon.id) {
-      // Toggle off if same icon is clicked again
-      this.clickedIcons.delete(rowIndex);
-    } else {
-      // Set new clicked icon for this row
-      this.clickedIcons.set(rowIndex, icon.id);
-    }
-    
+  onIconClick(icon: IconConfig, rowData: any) {
     this.iconClick.emit({ icon, rowData });
-  }
-
-  hasExpandedIcon(rowIndex: number): boolean {
-    return this.clickedIcons.has(rowIndex);
-  }
-
-  getClickedIconName(rowIndex: number): string {
-    const iconId = this.clickedIcons.get(rowIndex);
-    const icon = this.icons().find(i => i.id === iconId);
-    return icon ? `${icon.icon} ${icon.tooltip || icon.id}` : '';
   }
 }
 
