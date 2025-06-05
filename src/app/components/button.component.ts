@@ -22,10 +22,15 @@ import { Component, input, output } from '@angular/core';
       [style.fontWeight]="fontWeight()"
       [style.boxShadow]="boxShadow()"
       [style.fontFamily]="fontFamily()"
+      [style.minHeight.px]="minHeight()"
+      [style.padding]="padding()"
+      [style.margin]="margin()"
+     
       (click)="clicked.emit($event)"
     >
       <div class="button-container">
-        <div>{{ icon() }}</div>
+        @if(icon() && icon() !== '') {
+        <div>{{ icon() }}</div>}
         @if(text()){
         <div class="text-container">
           <div>{{ text() }}</div>
@@ -40,9 +45,9 @@ import { Component, input, output } from '@angular/core';
       button {
       min-width: max-content;
       max-width: 15ch;
-      min-height: 37px;
+      //min-height: 37px;
       max-height: 50px;
-      padding: 4px 12px;
+      //padding: 4px 12px;
       }
 
     .button-container {
@@ -83,7 +88,7 @@ export class ButtonComponent {
   text1 = input<string, string>('', {
     transform: (value: string) => value.toUpperCase(),
   });
-  icon = input<string>('🎶');
+  icon = input<string>('');
   width = input<number>(10);
   height = input<number>(5);
   cursor = input<string>('pointer');
@@ -99,4 +104,7 @@ export class ButtonComponent {
   fontWeight = input<string>('500');
   boxShadow = input<string>('0px 2px 4px rgba(0, 0, 0, 0.5)');
   fontFamily = input<string>('Arial, sans-serif');
+  minHeight = input<number>(37);
+  padding = input<string>('4px 12px');
+  margin = input<string>('0');
 }

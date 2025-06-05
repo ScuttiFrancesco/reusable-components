@@ -1,9 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
+import { ButtonComponent } from './button.component';
 
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [],
+  imports: [ButtonComponent],
   template: `
     @if (title()) {
     <h2 class="title">{{ title() }}</h2>
@@ -45,9 +46,24 @@ import { Component, input, output } from '@angular/core';
               [style.borderRadius.px]="thBorderRadius()"
               [style.border]="thBorder()"
             >
-              {{ column }}
-            </th >
-            }            
+            
+             <span> {{ column }}</span>
+              @if (isColumnSortable(column)) {
+              <app-button
+                [width]="3"
+                [height]="2.5"
+                [minHeight]="30"
+                [bgColor]="'transparent'"
+                [border]="'none'"
+                [icon]="getSortIcon(column)"
+                [boxShadow]="'none'"
+                [padding]="'0'"
+                [margin]="'0'"
+                (click)="sort(column)"
+              />
+              }
+            </th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -70,24 +86,24 @@ import { Component, input, output } from '@angular/core';
               [style.textAlign]="tdTextAlign()"
             >
               @if (cellData.type === 'text') {
-                {{ cellData.value }}
-              } @else if (cellData.type === 'icons') {
-                @for (icon of cellData.icons; track $index) {
-                  <button 
-                    class="icon-button"
-                    (click)="onIconClick(icon, obj)"
-                    [title]="icon.tooltip || ''"
-                  >
-                    {{ icon.icon }}
-                  </button>
-                }
-              }
+              {{ cellData.value }}
+              } @else if (cellData.type === 'icons') { @for (icon of
+              cellData.icons; track $index) {
+              <button
+                class="icon-button"
+                (click)="onIconClick(icon, obj)"
+                [title]="icon.tooltip || ''"
+              >
+                {{ icon.icon }}
+              </button>
+              } }
             </td>
             }
           </tr>
           }
         </tbody>
       </table>
+      <ng-content />
     </div>
   `,
   styles: `  
@@ -164,22 +180,29 @@ export class TableComponent {
 
   title = input<string>('Table Title');
   data = input<TableData[]>([]);
-  showColumns = input<string[]>([
-    'header1',
-    'header2',
-    'header3',
-    'header4',
-    'header5',
+  showColumns = computed(() => {
+    return Array.from(this.columnConfig()).map((col) => col.name);
+  });
+  columnConfig = input<ColumnConfig[]>([
+    { name: 'header1', sortable: true, filterable: true },
+    { name: 'header2', sortable: true, filterable: true },
+    { name: 'header3', sortable: true, filterable: true },
+    { name: 'header4', sortable: true, filterable: true },
+    { name: 'header5', sortable: true, filterable: true },
   ]);
   extraColumn = input<string>('');
-  
+  sortColumn = output<{column: string, direction: SortDirection}>();
+
+  // Track sort state for each column
+  private columnSortStates = new Map<string, SortDirection>();
+
   // New icon-related inputs
   icons = input<IconConfig[]>([]);
   iconDistribution = input<'single-column' | 'distributed'>('single-column');
-  iconColumnMapping = input<{[key: string]: string[]}>({});
+  iconColumnMapping = input<{ [key: string]: string[] }>({});
 
   // Output for icon clicks
-  iconClick = output<{icon: IconConfig, rowData: any}>();
+  iconClick = output<{ icon: IconConfig; rowData: any }>();
 
   get displayedData() {
     return this.data().map((row) => {
@@ -206,41 +229,75 @@ export class TableComponent {
 
   getRowCells(row: any): CellData[] {
     const cells: CellData[] = [];
-    
+
     // Add regular data cells
-    this.showColumns().forEach(column => {
+    this.showColumns().forEach((column) => {
       cells.push({
         type: 'text',
-        value: row[column] || ''
+        value: row[column] || '',
       });
     });
-    
+
     // Add icon cells based on distribution mode
     if (this.iconDistribution() === 'single-column') {
       // All icons in one column
       cells.push({
         type: 'icons',
-        icons: this.icons()
+        icons: this.icons(),
       });
     } else {
       // Icons distributed across multiple columns
       const mapping = this.iconColumnMapping();
-      Object.keys(mapping).forEach(columnName => {
-        const columnIcons = this.icons().filter(icon => 
+      Object.keys(mapping).forEach((columnName) => {
+        const columnIcons = this.icons().filter((icon) =>
           mapping[columnName].includes(icon.id)
         );
         cells.push({
           type: 'icons',
-          icons: columnIcons
+          icons: columnIcons,
         });
       });
     }
-    
+
     return cells;
   }
 
   onIconClick(icon: IconConfig, rowData: any) {
     this.iconClick.emit({ icon, rowData });
+  }
+
+  isColumnSortable(columnName: string): boolean {
+    const config = this.columnConfig().find(col => col.name === columnName);
+    return config?.sortable === true;
+  }
+
+  getSortIcon(column: string): string {
+    const sortState = this.columnSortStates.get(column) || SortDirection.none;
+    switch (sortState) {
+      case SortDirection.asc: return SortIcon.ascSort;
+      case SortDirection.desc: return SortIcon.descSort;
+      default: return SortIcon.noneSort;
+    }
+  }
+
+  sort(column: string) {
+    if (!this.isColumnSortable(column)) return;
+    
+    const currentState = this.columnSortStates.get(column) || SortDirection.none;
+    let newState: SortDirection;
+    
+    switch (currentState) {
+      case SortDirection.none: newState = SortDirection.asc; break;
+      case SortDirection.asc: newState = SortDirection.desc; break;
+      case SortDirection.desc: newState = SortDirection.asc; break;
+      default: newState = SortDirection.asc; break;
+    }
+    
+    // Reset all other columns to none
+    this.columnSortStates.clear();
+    this.columnSortStates.set(column, newState);
+    console.log(`Sorting column: ${column}, new state: ${newState}`);
+    this.sortColumn.emit({ column, direction: newState });
   }
 }
 
@@ -262,4 +319,22 @@ interface CellData {
   type: 'text' | 'icons';
   value?: string;
   icons?: IconConfig[];
+}
+
+interface ColumnConfig {
+  name: string;
+  sortable?: boolean;
+  filterable?: boolean;
+}
+
+enum SortIcon {
+  noneSort = '🔄',
+  ascSort = '🔼',
+  descSort = '🔽',
+}
+
+enum SortDirection {
+  none = 'none',
+  asc = 'asc', 
+  desc = 'desc'
 }
