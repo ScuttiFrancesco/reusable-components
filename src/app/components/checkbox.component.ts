@@ -48,7 +48,7 @@ export class CheckboxComponent implements OnInit {
   height = input<string>('auto');
   border = input<string>('1px solid rgb(255, 255, 255)');
   borderRadius = input<number>(5);
-  fontSize = input<number>(1);
+  fontSize = input<number>(0.75);
   padding = input<number>(15);
   display = input<string>('grid');
   alignItem = input<string>('center');
@@ -62,14 +62,16 @@ export class CheckboxComponent implements OnInit {
   isMobile = false;
 
   badgeList = input<string[]>([
-    'Badge 1',
-    'Badge 2',
-    'Badge 3',
-    'Badge 4',
-    'Badge 5',
-    'Badge 6',
-    'Badge 7',
-    'Badge 8',
+   'Piega',
+   'Taglio',
+   'Colore',
+    'Shampoo',
+    'Trattamento',
+    'Acconciatura',
+    'Extension',
+    'Barba',
+    'Sopracciglia',
+    'Manicure',
   ]);
 
   ngOnInit(): void {

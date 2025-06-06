@@ -59,10 +59,10 @@ export class BadgeComponent {
   height = input<string>('auto');
   border = input<string>('1px solid rgb(132, 132, 132)');
   borderSelected = input<string>('1px solid rgb(0, 255, 17)');
-  borderRadius = input<number>(24);
+  borderRadius = input<number>(32);
   fontSize = input<number>(1);
   fontWeight = input<string>('normal');
-  padding = input<string>('0 5px');
+  padding = input<string>('4px 8px');
   whiteSpace = input<string>('nowrap');
   boxShadow = input<string>('none');
   isSelected = false;

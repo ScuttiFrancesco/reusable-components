@@ -90,6 +90,7 @@ import { Component, input, output, computed } from '@angular/core';
 
     label {
       display: block;
+      margin-left: 4px;
     }
   `,
 })
@@ -105,7 +106,7 @@ export class SelectComponent {
   width = input<string>('200px');
   height = input<number>(40);
   padding = input<number>(12);
-  fontSize = input<number>(1);
+  fontSize = input<number>(0.75);
   fontFamily = input<string>('Arial, sans-serif');
   color = input<string>('#333');
   backgroundColor = input<string>('#fff');

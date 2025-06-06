@@ -1,30 +1,40 @@
-import { Component } from '@angular/core';
+import { Component, computed, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ButtonComponent } from "./components/button.component";
-import { InputComponent } from "./components/input.component";
+import { ButtonComponent } from './components/button.component';
+import { InputComponent } from './components/input.component';
 import { TableComponent } from './components/table.component';
-import { PaginationComponent } from "./components/pagination.component";
-import { BadgeComponent } from "./components/badge.component";
-import { CheckboxComponent } from "./components/checkbox.component";
-import { ToogleComponent } from "./components/toogle.component";
-import { SelectComponent, SelectOption } from "./components/select.component";
+import { PaginationComponent } from './components/pagination.component';
+import { BadgeComponent } from './components/badge.component';
+import { CheckboxComponent } from './components/checkbox.component';
+import { ToogleComponent } from './components/toogle.component';
+import { SelectComponent, SelectOption } from './components/select.component';
+import { AlertconfirmComponent } from './components/alertconfirm.component';
+import { AlertconfirmService } from './services/alertconfirm.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ButtonComponent, InputComponent, TableComponent, PaginationComponent, BadgeComponent, CheckboxComponent, ToogleComponent, SelectComponent],
+  imports: [
+    RouterOutlet,
+    ButtonComponent,
+    InputComponent,
+    TableComponent,
+    PaginationComponent,
+    BadgeComponent,
+    CheckboxComponent,
+    ToogleComponent,
+    SelectComponent,
+    AlertconfirmComponent,
+  ],
   template: `
-   <div class="container">
-    <!-- <app-button
+    <div class="container">
+      <!-- <app-button
     [text]="'Button'"
     /> -->
-    <div >
-    <app-input
-    
-    [type]="'number'"
-    />
+      <div>
+        <app-input [type]="'number'" />
 
-   <!--  <app-table
+        <!--  <app-table
     [data]="[{
           header1: 'Row 1 Col 1',
           header2: 'Row 1 Col 2',
@@ -67,20 +77,24 @@ import { SelectComponent, SelectOption } from "./components/select.component";
           [totalPages]="23"
          
         /> -->
+      </div>
+      <app-checkbox (badgeSelection)="badgeSelection($event)" />
+      <app-toogle (selection)="toogleSelection($event)" />
+
+      <app-select
+        [label]="'Choose an option'"
+        [options]="selectOptions"
+        [selectedValue]="selectedOption"
+        [placeholder]="'Please select...'"
+        (selectionChange)="onSelectChange($event)"
+      />
+      @if (alertconfirmMessage() && alertconfirmTitle()) {
+      <app-alertconfirm
+        [message]="alertconfirmMessage()"
+        [title]="alertconfirmTitle()"
+        [confirmation]="alertconfirmConfirmation()"
+      />}
     </div>
-    <app-checkbox
-    (badgeSelection)="badgeSelection($event)"
-    />
-    <app-toogle/>
-    
-    <app-select
-      [label]="'Choose an option'"
-      [options]="selectOptions"
-      [selectedValue]="selectedOption"
-      [placeholder]="'Please select...'"
-      (selectionChange)="onSelectChange($event)"
-    />
-   </div>
 
     <router-outlet />
   `,
@@ -103,24 +117,36 @@ import { SelectComponent, SelectOption } from "./components/select.component";
 })
 export class AppComponent {
   title = 'reusable-components';
+  alertconfirmMessage = computed(() => this.alertconfirmService.message());
+  alertconfirmTitle = computed(() => this.alertconfirmService.title());
+  alertconfirmConfirmation = computed(() =>
+    this.alertconfirmService.confirmation()
+  );
+  constructor(private alertconfirmService: AlertconfirmService) {
+    effect(() => {
+      if (this.alertconfirmService.confirmed()) {
+       this.alertconfirm();
+      }
+    }, { allowSignalWrites: true });
+  }
 
   // Icon configuration
   tableIcons = [
     { id: 'edit', icon: '✏️', tooltip: 'Edit' },
     { id: 'delete', icon: '🗑️', tooltip: 'Delete' },
-    { id: 'view', icon: '👁️', tooltip: 'View' }
+    { id: 'view', icon: '👁️', tooltip: 'View' },
   ];
 
   // Example with distributed icons across columns
   iconColumnMapping = {
-    'Edit': ['edit'],
-    'Actions': ['delete', 'view']
+    Edit: ['edit'],
+    Actions: ['delete', 'view'],
   };
 
-  onIconClick(event: {icon: any, rowData: any}) {
+  onIconClick(event: { icon: any; rowData: any }) {
     console.log('Icon clicked:', event.icon.id, 'Row data:', event.rowData);
-    
-    switch(event.icon.id) {
+
+    switch (event.icon.id) {
       case 'edit':
         console.log('Editing row:', event.rowData);
         break;
@@ -142,13 +168,33 @@ export class AppComponent {
     { value: 'option1', label: 'Option 1' },
     { value: 'option2', label: 'Option 2' },
     { value: 'option3', label: 'Option 3', disabled: true },
-    { value: 'option4', label: 'Option 4' }
+    { value: 'option4', label: 'Option 4' },
   ];
-  
+
   selectedOption = '';
 
   onSelectChange(option: SelectOption) {
     this.selectedOption = option.value;
     console.log('Selected option:', option);
+  }
+
+  toogleSelection(selection: boolean) {
+    console.log('Toogle selection:', selection);
+    if (selection) {
+      this.alertconfirmService.setAlert({
+        title: 'Toogle Activated',
+        message: 'You have activated the toogle.',
+        confirmation: true,
+      });
+    }
+  }
+
+  alertconfirm() {
+    this.alertconfirmService.setAlert({
+      title: 'Alert Confirmed',
+      message: 'This is the alert message  confirmation.',
+      confirmation: false,
+    });
+    this.alertconfirmService.confirmed.set(false); 
   }
 }
