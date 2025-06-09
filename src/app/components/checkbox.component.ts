@@ -1,10 +1,11 @@
 import { Component, HostListener, input, OnInit, output } from '@angular/core';
 import { BadgeComponent } from './badge.component';
+import { TooltipDirective } from '../directives/tooltip.directive';
 
 @Component({
   selector: 'app-checkbox',
   standalone: true,
-  imports: [BadgeComponent],
+  imports: [BadgeComponent, TooltipDirective],
   template: `
     <div
       [style]="checkboxContainer()"
@@ -25,11 +26,16 @@ import { BadgeComponent } from './badge.component';
       [style.gridAutoRows]="gridAutoRows()"
     >
       @for(badge of badgeList(); track $index){
-      <app-badge
-        [title]="badge"
-        [fontSize]="1.25"
-        (selection)="selectBadge($event)"
-      />}
+      <div>
+        <app-badge
+          [title]="badge"
+          [fontSize]="1.25"
+          [appTooltip]="badge"
+          [tooltipDelay]="300"
+          (selection)="selectBadge($event)"
+        />
+      </div>
+      }
     </div>
   `,
   styles: `
@@ -62,9 +68,9 @@ export class CheckboxComponent implements OnInit {
   isMobile = false;
 
   badgeList = input<string[]>([
-   'Piega',
-   'Taglio',
-   'Colore',
+    'Piega',
+    'Taglio',
+    'Colore',
     'Shampoo',
     'Trattamento',
     'Acconciatura',
@@ -87,7 +93,7 @@ export class CheckboxComponent implements OnInit {
     if (window.innerWidth <= 375) {
       this.gridTemplateColumns = 'auto auto';
       this.isMobile = true;
-    }else{
+    } else {
       this.gridTemplateColumns = this.gridColumn();
       this.isMobile = false;
     }
