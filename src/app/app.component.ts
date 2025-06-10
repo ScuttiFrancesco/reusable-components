@@ -1,4 +1,4 @@
-import { Component, computed, effect } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ButtonComponent } from './components/button.component';
 import { InputComponent } from './components/input.component';
@@ -14,6 +14,8 @@ import { TooltipComponent } from './components/tooltip.component';
 import { TooltipDirective } from './directives/tooltip.directive';
 import { LoaderComponent } from "./components/loader.component";
 import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
+import { NavbarComponent } from "./components/navbar.component";
+import { ToastComponent } from "./components/toast.component";
 
 
 @Component({
@@ -33,13 +35,17 @@ import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
     TooltipComponent,
     TooltipDirective,
     LoaderComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    NavbarComponent,
+    ToastComponent
 ],
   template: `
-  <app-breadcrumbs />
+   <app-navbar />
+   <app-breadcrumbs />
+ 
     @if (showApp) {
     <div class="container">
-      <app-button [text]="'Button'" (clicked)="login()" />
+      <app-button [text]="'Button'" (clicked)="showToast()" />
       <div>
         <app-input [type]="'number'" />
 
@@ -111,13 +117,16 @@ import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
     <app-loader
     [type]="'dots'"
     />}
-    
+    <app-toast
+    [message]="'This is a message for the toast.................................................. ........................................................................... ......................................................................'"
+    [showinput]="toastshow()"
+    (toastVariableHidden)="toastshow.set(false)"/>
     <router-outlet />
   `,
   styles: `
     .container {
       position: fixed;
-      top: 16px;
+      top: 48px;
       left: 16px;
       right: 16px;
       bottom: 16px;
@@ -233,5 +242,9 @@ export class AppComponent {
     
   }
 
+  toastshow = signal<boolean>(false);
+  showToast() {
+    this.toastshow.set(true);   
+  }
 
 }
