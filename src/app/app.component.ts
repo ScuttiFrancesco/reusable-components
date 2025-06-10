@@ -1,5 +1,5 @@
 import { Component, computed, effect } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { ButtonComponent } from './components/button.component';
 import { InputComponent } from './components/input.component';
 import { TableComponent } from './components/table.component';
@@ -10,6 +10,11 @@ import { ToogleComponent } from './components/toogle.component';
 import { SelectComponent, SelectOption } from './components/select.component';
 import { AlertconfirmComponent } from './components/alertconfirm.component';
 import { AlertconfirmService } from './services/alertconfirm.service';
+import { TooltipComponent } from './components/tooltip.component';
+import { TooltipDirective } from './directives/tooltip.directive';
+import { LoaderComponent } from "./components/loader.component";
+import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
+
 
 @Component({
   selector: 'app-root',
@@ -25,12 +30,16 @@ import { AlertconfirmService } from './services/alertconfirm.service';
     ToogleComponent,
     SelectComponent,
     AlertconfirmComponent,
-  ],
+    TooltipComponent,
+    TooltipDirective,
+    LoaderComponent,
+    BreadcrumbsComponent
+],
   template: `
+  <app-breadcrumbs />
+    @if (showApp) {
     <div class="container">
-      <!-- <app-button
-    [text]="'Button'"
-    /> -->
+      <app-button [text]="'Button'" (clicked)="login()" />
       <div>
         <app-input [type]="'number'" />
 
@@ -79,8 +88,9 @@ import { AlertconfirmService } from './services/alertconfirm.service';
         /> -->
       </div>
       <app-checkbox (badgeSelection)="badgeSelection($event)" />
-      <app-toogle (selection)="toogleSelection($event)" />
-
+      <div [appTooltip]="'Press to switch on'" [tooltipDelay]="300">
+        <app-toogle (selection)="toogleSelection($event)" />
+      </div>
       <app-select
         [label]="'Choose an option'"
         [options]="selectOptions"
@@ -88,6 +98,7 @@ import { AlertconfirmService } from './services/alertconfirm.service';
         [placeholder]="'Please select...'"
         (selectionChange)="onSelectChange($event)"
       />
+
       @if (alertconfirmMessage() && alertconfirmTitle()) {
       <app-alertconfirm
         [message]="alertconfirmMessage()"
@@ -95,7 +106,12 @@ import { AlertconfirmService } from './services/alertconfirm.service';
         [confirmation]="alertconfirmConfirmation()"
       />}
     </div>
-
+    }
+    @if (loader) {
+    <app-loader
+    [type]="'dots'"
+    />}
+    
     <router-outlet />
   `,
   styles: `
@@ -116,18 +132,27 @@ import { AlertconfirmService } from './services/alertconfirm.service';
     `,
 })
 export class AppComponent {
+  tooltipText = true;
+  loader = false;
   title = 'reusable-components';
+  showApp = true;
   alertconfirmMessage = computed(() => this.alertconfirmService.message());
   alertconfirmTitle = computed(() => this.alertconfirmService.title());
   alertconfirmConfirmation = computed(() =>
     this.alertconfirmService.confirmation()
   );
-  constructor(private alertconfirmService: AlertconfirmService) {
-    effect(() => {
-      if (this.alertconfirmService.confirmed()) {
-       this.alertconfirm();
-      }
-    }, { allowSignalWrites: true });
+  constructor(
+    private alertconfirmService: AlertconfirmService,
+    private router: Router
+  ) {
+    effect(
+      () => {
+        if (this.alertconfirmService.confirmed()) {
+          this.alertconfirm();
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   // Icon configuration
@@ -195,6 +220,18 @@ export class AppComponent {
       message: 'This is the alert message  confirmation.',
       confirmation: false,
     });
-    this.alertconfirmService.confirmed.set(false); 
+    this.alertconfirmService.confirmed.set(false);
   }
+
+  login() {
+    this.loader = true;
+    this.showApp = false;
+    setTimeout(() => {
+      this.loader = false;
+   this.router.navigate(['/home']);  
+    }, 2000);
+    
+  }
+
+
 }
