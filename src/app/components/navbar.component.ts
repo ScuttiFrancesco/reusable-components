@@ -57,7 +57,7 @@ import { NavigationEnd, Router } from '@angular/router';
       align-items: center;
       flex-direction: row;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);      
-      margin-bottom: 32px;      
+           
     }
 
     .nav-item {

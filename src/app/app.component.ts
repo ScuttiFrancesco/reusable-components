@@ -16,6 +16,7 @@ import { LoaderComponent } from "./components/loader.component";
 import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
 import { NavbarComponent } from "./components/navbar.component";
 import { ToastComponent } from "./components/toast.component";
+import { TruncatePipe } from "./pipes/truncate.pipe";
 
 
 @Component({
@@ -37,7 +38,8 @@ import { ToastComponent } from "./components/toast.component";
     LoaderComponent,
     BreadcrumbsComponent,
     NavbarComponent,
-    ToastComponent
+    ToastComponent,
+    TruncatePipe
 ],
   template: `
    <app-navbar />
@@ -118,7 +120,7 @@ import { ToastComponent } from "./components/toast.component";
     [type]="'dots'"
     />}
     <app-toast
-    [message]="'This is a message for the toast.................................................. ........................................................................... ......................................................................'"
+    [message]="toastMessage | truncate: 20"
     [showinput]="toastshow()"
     (toastVariableHidden)="toastshow.set(false)"/>
     <router-outlet />
@@ -126,7 +128,7 @@ import { ToastComponent } from "./components/toast.component";
   styles: `
     .container {
       position: fixed;
-      top: 48px;
+      top: 96px;
       left: 16px;
       right: 16px;
       bottom: 16px;
@@ -141,6 +143,7 @@ import { ToastComponent } from "./components/toast.component";
     `,
 })
 export class AppComponent {
+  toastMessage = 'This is a message for the toast.................................................. ........................................................................... ......................................................................';
   tooltipText = true;
   loader = false;
   title = 'reusable-components';
