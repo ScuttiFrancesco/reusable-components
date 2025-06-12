@@ -18,6 +18,8 @@ import { ManipolateDataService } from './services/manipolate-data.service';
     >}
     <pre>{{ listaClientiFiltered() | json }}</pre>
     <button (click)="filtra()">filter</button>
+
+    
   `,
   styles: [``],
 })

@@ -66,6 +66,7 @@ import { ButtonComponent } from './button.component';
       </div>
       <span class="message">{{ message() }}</span>
     </div>
+    <ng-content></ng-content>
   `,
   styles: `
   input {
@@ -159,8 +160,9 @@ export class InputComponent {
     const inputElement = document.querySelector<HTMLInputElement>('#input-id');
     if (inputElement) {
       inputElement.value = '';
-      this.clicked.emit(inputElement.value);
       this.inputChanging.set('');
+      this.clicked.emit(inputElement.value);
+      this.inputValue.emit(inputElement.value);
     }
   }
 }

@@ -17,6 +17,9 @@ import { BreadcrumbsComponent } from "./components/breadcrumbs.component";
 import { NavbarComponent } from "./components/navbar.component";
 import { ToastComponent } from "./components/toast.component";
 import { TruncatePipe } from "./pipes/truncate.pipe";
+import { DateRangePickerComponent } from "./components/date-range-picker.component";
+import { TimeAgoPipe } from './pipes/time-ago.pipe';
+import { AutocompleteComponent } from "./components/autocomplete.component";
 
 
 @Component({
@@ -39,19 +42,27 @@ import { TruncatePipe } from "./pipes/truncate.pipe";
     BreadcrumbsComponent,
     NavbarComponent,
     ToastComponent,
-    TruncatePipe
+    TruncatePipe,
+    DateRangePickerComponent,
+    TimeAgoPipe,
+    AutocompleteComponent
 ],
   template: `
    <app-navbar />
    <app-breadcrumbs />
  
-    @if (showApp) {
+    
     <div class="container">
-      <app-button [text]="'Button'" (clicked)="showToast()" />
-      <div>
-        <app-input [type]="'number'" />
+      <app-date-range-picker
+      (dateRangeChange)="dateRange($event)"/>
 
-        <!--  <app-table
+      {{dat! | timeAgo}} <app-input [type]="'text'" (inputValue)="inputValue.set($event)">
+      <app-autocomplete [elements]="elements" [valueInput]="inputValue()"/></app-input>
+   <!--    <app-button [text]="'Button'" (clicked)="showToast()" />
+      <div>
+       
+
+         <app-table
     [data]="[{
           header1: 'Row 1 Col 1',
           header2: 'Row 1 Col 2',
@@ -93,7 +104,7 @@ import { TruncatePipe } from "./pipes/truncate.pipe";
     /><app-pagination
           [totalPages]="23"
          
-        /> -->
+        /> 
       </div>
       <app-checkbox (badgeSelection)="badgeSelection($event)" />
       <div [appTooltip]="'Press to switch on'" [tooltipDelay]="300">
@@ -105,7 +116,7 @@ import { TruncatePipe } from "./pipes/truncate.pipe";
         [selectedValue]="selectedOption"
         [placeholder]="'Please select...'"
         (selectionChange)="onSelectChange($event)"
-      />
+      />-->
 
       @if (alertconfirmMessage() && alertconfirmTitle()) {
       <app-alertconfirm
@@ -114,7 +125,7 @@ import { TruncatePipe } from "./pipes/truncate.pipe";
         [confirmation]="alertconfirmConfirmation()"
       />}
     </div>
-    }
+  
     @if (loader) {
     <app-loader
     [type]="'dots'"
@@ -143,6 +154,14 @@ import { TruncatePipe } from "./pipes/truncate.pipe";
     `,
 })
 export class AppComponent {
+  inputValue = signal<string>('');
+  elements = [
+    { name: 'Mario', surname: 'Rossi' },
+    { name: 'Luigi', surname: 'Verdi' },
+    { name: 'Anna', surname: 'Bianchi' },
+    { name: 'Giovanni', surname: 'Neri' },
+    { name: 'Maria', surname: 'Gialli' },
+  ]
   toastMessage = 'This is a message for the toast.................................................. ........................................................................... ......................................................................';
   tooltipText = true;
   loader = false;
@@ -250,4 +269,12 @@ export class AppComponent {
     this.toastshow.set(true);   
   }
 
+  dat : Date| null = null
+  data = new Date('2025-06-12T10:00:00Z');
+  dateRange(dateRange: { start: string | null; end: string | null}) {
+    console.log('Selected date range:', dateRange);
+    if (dateRange.start) {
+      this.dat = new Date(dateRange.start + 'T08:30:00Z');
+    }
+  }
 }
